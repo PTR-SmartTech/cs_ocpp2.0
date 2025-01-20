@@ -33,6 +33,7 @@ func Run() {
 	csms.SetReservationHandler(ocppHandlers)
 	csms.SetTariffCostHandler(ocppHandlers)
 	csms.SetTransactionsHandler(ocppHandlers)
+	csms.SetSmartChargingHandler(ocppHandlers)
 	// Add handlers for dis/connection of charging stations
 	csms.SetNewChargingStationHandler(func(chargingStation ocpp2.ChargingStationConnection) {
 		ocppHandlers.ChargingStations[chargingStation.ID()] = &handler.ChargingStationState{Connectors: map[int]*handler.ConnectorInfo{}, Transactions: map[int]*handler.TransactionInfo{}}

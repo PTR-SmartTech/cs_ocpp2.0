@@ -162,12 +162,12 @@ func (c *CSMSHandler) OnBootNotification(chargingStationID string, request *prov
 	if err == nil {
 		logDefault(chargingStationID, request.GetFeatureName()).Errorf("charger with id %v already exists: %v", chargingStationID, err)
 		return provisioning.NewBootNotificationResponse(types.NewDateTime(time.Now()), defaultHeartbeatInterval, provisioning.RegistrationStatusAccepted), nil
-	}else{
+	} else {
 		if err = chargerRepository.Create(&chargePointModel); err != nil {
 			return provisioning.NewBootNotificationResponse(types.NewDateTime(time.Now()), defaultHeartbeatInterval, provisioning.RegistrationStatusRejected), err
 		}
 	}
-	
+
 	response = provisioning.NewBootNotificationResponse(types.NewDateTime(time.Now()), defaultHeartbeatInterval, provisioning.RegistrationStatusAccepted)
 	return
 }
