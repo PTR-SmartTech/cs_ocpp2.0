@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"github.com/dogg5432/cs_ocpp2.0/util"
 	"github.com/lorenzodonini/ocpp-go/ocpp2.0.1/availability"
 	"github.com/lorenzodonini/ocpp-go/ocpp2.0.1/firmware"
 	"github.com/lorenzodonini/ocpp-go/ocpp2.0.1/types"
 )
+
+var logDefault = util.LogDefault
 
 type CSMSHandler struct {
 	ChargingStations map[string]*ChargingStationState

@@ -8,11 +8,11 @@ import (
 
 type MeterValues struct {
 	ID            primitive.ObjectID `bson:"_id,omitempty"`
-	ChargerID     string             `json:"chargerId"`
-	ConnectorID   int                `json:"connectorId"`
-	TransactionId int                `json:"transactionId"`
-	Value         int                `json:"value"`
-	Type          string             `json:"type"`
-	Unit          string             `json:"unit"`
-	CreatedAt     time.Time          `json:"createdAt"`
+	ChargerID     string             `bson:"chargerId"`
+	ConnectorID   int                `bson:"connectorId"`
+	TransactionId int                `bson:"transactionId"`
+	Value         int                `bson:"value"`
+	Type          string             `bson:"type"`
+	Unit          string             `bson:"unit"`
+	CreatedAt     time.Time          `bson:"createdAt"`
 }

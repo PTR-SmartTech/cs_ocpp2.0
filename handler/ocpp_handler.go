@@ -3,7 +3,6 @@ package handler
 import (
 	"github.com/dogg5432/cs_ocpp2.0/model"
 	"github.com/dogg5432/cs_ocpp2.0/repository"
-	"github.com/dogg5432/cs_ocpp2.0/util"
 	"github.com/lorenzodonini/ocpp-go/ocpp2.0.1/authorization"
 	"github.com/lorenzodonini/ocpp-go/ocpp2.0.1/availability"
 	"github.com/lorenzodonini/ocpp-go/ocpp2.0.1/data"
@@ -28,8 +27,6 @@ type DataSample struct {
 }
 
 const defaultHeartbeatInterval = 300
-
-var logDefault = util.LogDefault
 
 func (c *CSMSHandler) OnAuthorize(chargingStationID string, request *authorization.AuthorizeRequest) (response *authorization.AuthorizeResponse, err error) {
 	logDefault(chargingStationID, request.GetFeatureName()).Infof("client with token %v authorized", request.IdToken)
@@ -194,15 +191,36 @@ func (c *CSMSHandler) OnSecurityEventNotification(chargingStationID string, requ
 }
 
 func (c *CSMSHandler) OnTransactionEvent(chargingStationID string, request *transactions.TransactionEventRequest) (response *transactions.TransactionEventResponse, err error) {
+	transactionsRepository := repository.NewTransactionsRepository()
 	switch request.EventType {
 	case transactions.TransactionEventStarted:
 		logDefault(chargingStationID, request.GetFeatureName()).Infof("transaction %v started, reason: %v, state: %v", request.TransactionInfo.TransactionID, request.TriggerReason, request.TransactionInfo.ChargingState)
+		newTransaction := model.Transaction{
+			TransactionId:  request.TransactionInfo.TransactionID,
+			StartTimestamp: request.Timestamp.Time,
+			ChargerID:      chargingStationID,
+			MeterStart:     request.MeterValue[0].SampledValue[0].Value,
+			StartReason:    string(request.TriggerReason),
+		}
+		if request.Evse != nil && request.Evse.ConnectorID != nil {
+			newTransaction.ConnectorID = *request.Evse.ConnectorID
+		}
+		transactionsRepository.Create(&newTransaction)
 	case transactions.TransactionEventUpdated:
 		logDefault(chargingStationID, request.GetFeatureName()).Infof("transaction %v updated, reason: %v, state: %v\n", request.TransactionInfo.TransactionID, request.TriggerReason, request.TransactionInfo.ChargingState)
 		for _, mv := range request.MeterValue {
 			logDefault(chargingStationID, request.GetFeatureName()).Printf("%v", mv)
 		}
 	case transactions.TransactionEventEnded:
+		transaction, err := transactionsRepository.FindOne(request.TransactionInfo.TransactionID)
+		if err != nil {
+			logDefault(chargingStationID, request.GetFeatureName()).Errorf("transaction %v not found: %v", request.TransactionInfo.TransactionID, err)
+			return transactions.NewTransactionEventResponse(), err
+		}
+		transaction.StopTimestamp = request.Timestamp.Time
+		transaction.MeterStop = request.MeterValue[0].SampledValue[0].Value
+		transaction.StopReason = string(request.TriggerReason)
+		transactionsRepository.Update(&transaction)
 		logDefault(chargingStationID, request.GetFeatureName()).Infof("transaction %v stopped, reason: %v, state: %v\n", request.TransactionInfo.TransactionID, request.TriggerReason, request.TransactionInfo.ChargingState)
 	}
 	response = transactions.NewTransactionEventResponse()

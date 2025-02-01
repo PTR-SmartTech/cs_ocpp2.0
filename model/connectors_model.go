@@ -9,9 +9,9 @@ import (
 
 type Connector struct {
 	ID          primitive.ObjectID           `bson:"_id,omitempty"`
-	ChargerID   string                       `json:"chargerId"`
-	ConnectorID int                          `json:"connectorId"`
-	Status      availability.ConnectorStatus `json:"status"`
-	CreatedAt   time.Time                    `json:"createdAt"`
-	UpdatedAt   time.Time                    `json:"updatedAt"`
+	ChargerID   string                       `bson:"chargerId"`
+	ConnectorID int                          `bson:"connectorId"`
+	Status      availability.ConnectorStatus `bson:"status"`
+	CreatedAt   time.Time                    `bson:"createdAt"`
+	UpdatedAt   time.Time                    `bson:"updatedAt"`
 }

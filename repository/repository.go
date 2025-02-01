@@ -13,3 +13,9 @@ type ConnectorRepository interface {
 	Update(connector *model.Connector) error
 	InsertOrUpdate(connector *model.Connector) error
 }
+
+type TransactionRepository interface {
+	Create(transaction *model.Transaction) error
+	FindOne(transactionID string) (model.Transaction, error)
+	Update(transaction *model.Transaction) error
+}
